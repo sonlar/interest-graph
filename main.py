@@ -23,7 +23,7 @@ class Github_API:
             combo_g = networkx.compose(combo_g, graph)
             combo_stargazers.extend(gazers)
         self.get_relations(combo_g, combo_stargazers)
-        networkx.write_graphml(combo_g, f"github.graphml")
+        networkx.write_graphml(combo_g, "github.graphml")
 
     def stop(self) -> None:
         self.session.close()
@@ -48,8 +48,8 @@ class Github_API:
                 for follower in gazer.get_followers():
                     if follower.login + "(user)" in g:
                         g.add(follower.login + "(user)", gazer.login + "(user)", type="follows")
-            except Exception:
-                print(Exception)
+            except Exception as e:
+                print(e)
         return g
 
 
