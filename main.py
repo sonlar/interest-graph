@@ -47,7 +47,7 @@ class Github_API:
             try:
                 for follower in gazer.get_followers():
                     if follower.login + "(user)" in g:
-                        g.add(follower.login + "(user)", gazer.login + "(user)", type="follows")
+                        g.add_edge(follower.login + "(user)", gazer.login + "(user)", type="follows")
             except Exception as e:
                 print(e)
         return g
