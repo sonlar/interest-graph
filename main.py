@@ -13,8 +13,10 @@ class Github_API:
 
     def start(self) -> None:
         self.session = Github(auth=self.auth, per_page=100)
-        user, repo, stargazers = self.get_stargazers()
-        self.build_graph(user, repo, stargazers)
+        print(self.session.rate_limiting)
+        print(self.session.rate_limiting_resettime)
+        # user, repo, stargazers = self.get_stargazers()
+        # self.build_graph(user, repo, stargazers)
 
     def stop(self) -> None:
         self.session.close()
@@ -23,9 +25,6 @@ class Github_API:
         user = self.session.get_user(self.user)
         repo = user.get_repo(self.repo)
         stargazers = [stargazer for stargazer in repo.get_stargazers()]
-        print(user)
-        print(repo)
-        print(stargazers[0])
         return user, repo, stargazers
 
     def build_graph(self, user, repo, stargazers) -> None:
@@ -34,7 +33,15 @@ class Github_API:
         for gazer in stargazers:
             g.add_node(gazer.login + "(user)", type="user")
             g.add_edge(gazer.login + "(user)", repo.name + "(repo)", type="gazes")
+        g = self.get_relations(g, stargazers)
+        networkx.write_graphml(g, "github.graphml")
 
+    def get_relations(self, g, stargazers) -> None:
+        for gazer in stargazers:
+            for follower in gazer.get_followers():
+                if follower.login + "(user)" in g:
+                    g.add(follower.login + "(user)", gazer.login + "(user)", type="follows")
+        return g
 
 
 if "__main__" == __name__:
